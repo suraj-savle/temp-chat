@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -34,3 +35,28 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+=======
+# TempChat
+
+A temporary anonymous real-time chat room application where users can instantly create or join a room using a username and room code.
+
+No login, no phone number, no registration.
+
+Built for fast temporary communication with real-time messaging.
+
+
+## Features
+
+- Create temporary chat rooms
+- Join rooms using room code
+- Real-time live messaging
+- User join / leave notifications
+- Typing indicator
+- Auto room cleanup
+- Responsive UI
+- No authentication required
+
+## Author
+
+Built by Suraj
+>>>>>>> d87efc55c69fbac2d8ca6c625b0ec60f0bffbb15
