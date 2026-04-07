@@ -22,7 +22,7 @@ function RoomContent() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
   const [isConnected, setIsConnected] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState(1);
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
   const [showSidebar, setShowSidebar] = useState(false);
@@ -30,6 +30,7 @@ function RoomContent() {
   const [tempUsername, setTempUsername] = useState(username);
   const [roomError, setRoomError] = useState<string>("");
   const [mounted, setMounted] = useState(false);
+  const [isCreator, setIsCreator] = useState(true);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -121,7 +122,20 @@ function RoomContent() {
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 2000);
   };
+  const leaveRoom = () => {
+    if (!roomCode) return;
 
+    socket.emit("leave_room", {
+      roomCode,
+      username,
+    });
+
+    // Small delay to allow the emit to send
+    setTimeout(() => {
+      socket.disconnect();
+      router.push("/");
+    }, 100);
+  };
   useEffect(() => {
     if (!mounted) return;
 
@@ -162,6 +176,8 @@ function RoomContent() {
 
     const handleRoomJoined = (data: { roomCode: string; message: string }) => {
       setRoomCode(data.roomCode);
+      // Check if current user is creator (you'll need to emit a request for this info)
+      socket.emit("check_is_creator", { roomCode: data.roomCode });
     };
 
     const handleRoomError = (data: { message: string }) => {
@@ -180,7 +196,18 @@ function RoomContent() {
     };
 
     const handleRoomUsers = (data: { users: string[]; count: number }) => {
-      setOnlineUsers(data.count);
+      setOnlineUsers(data.users);
+    };
+
+    const handleRoomClosed = (data: { message: string }) => {
+      setRoomError(data.message);
+      setTimeout(() => {
+        router.push("/");
+      }, 3000);
+    };
+
+    const handleIsCreator = (data: { isCreator: boolean }) => {
+      setIsCreator(data.isCreator);
     };
 
     const handleUserTyping = (data: {
@@ -207,7 +234,9 @@ function RoomContent() {
     socket.on("previous_messages", handlePreviousMessages);
     socket.on("room_users", handleRoomUsers);
     socket.on("user_typing", handleUserTyping);
-
+    socket.on("room_closed", handleRoomClosed);
+    socket.on("is_creator", handleIsCreator);
+    
     return () => {
       socket.off("connect", handleConnect);
       socket.off("disconnect", handleDisconnect);
@@ -218,6 +247,7 @@ function RoomContent() {
       socket.off("previous_messages", handlePreviousMessages);
       socket.off("room_users", handleRoomUsers);
       socket.off("user_typing", handleUserTyping);
+      socket.off("room_closed", handleRoomClosed);
 
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
@@ -385,7 +415,7 @@ function RoomContent() {
                   d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
                 />
               </svg>
-              <span>{onlineUsers} online</span>
+              <span>{onlineUsers.length} online</span>
             </div>
 
             <button
@@ -408,11 +438,19 @@ function RoomContent() {
             </button>
 
             <button
-              onClick={() => router.push("/")}
-              className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm hover:bg-white/10 hover:border-white/30 transition-all duration-300"
+              onClick={leaveRoom}
+              className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm hover:bg-white/10"
             >
               Leave Room
             </button>
+            {isCreator && (
+              <button
+                onClick={() => socket.emit("close_room", { roomCode })}
+                className="rounded-xl bg-red-500 px-4 py-2 text-sm"
+              >
+                Close Room
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -531,10 +569,15 @@ function RoomContent() {
               </button>
             </div>
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm text-gray-300">
-                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                {username} (You)
-              </div>
+              {onlineUsers.map((user, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 text-sm text-gray-300"
+                >
+                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                  {user === username ? `${user} (You)` : user}
+                </div>
+              ))}
             </div>
           </div>
         </aside>
