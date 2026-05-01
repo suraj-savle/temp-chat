@@ -118,10 +118,11 @@ function RoomContent() {
     const toast = document.createElement("div");
     toast.textContent = "Room code copied!";
     toast.className =
-      "fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-white text-black px-4 py-2 rounded-xl text-sm font-medium z-50 animate-fade-in";
+      "fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-4 py-2 rounded-xl text-sm font-medium z-50 animate-fade-in";
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 2000);
   };
+  
   const leaveRoom = () => {
     if (!roomCode) return;
 
@@ -130,21 +131,19 @@ function RoomContent() {
       username,
     });
 
-    // Small delay to allow the emit to send
     setTimeout(() => {
       socket.disconnect();
       router.push("/");
     }, 100);
   };
+  
   useEffect(() => {
     if (!mounted) return;
 
-    // Connect socket
     if (!socket.connected) {
       socket.connect();
     }
 
-    // Join/create should only run once for this page instance.
     if (!roomInitDoneRef.current) {
       if (mode === "create" && roomCodeParam) {
         socket.emit("join_room", { roomCode: roomCodeParam, username });
@@ -161,7 +160,6 @@ function RoomContent() {
       }
     }
 
-    // Socket event handlers
     const handleConnect = () => setIsConnected(true);
     const handleDisconnect = () => setIsConnected(false);
 
@@ -176,7 +174,6 @@ function RoomContent() {
 
     const handleRoomJoined = (data: { roomCode: string; message: string }) => {
       setRoomCode(data.roomCode);
-      // Check if current user is creator (you'll need to emit a request for this info)
       socket.emit("check_is_creator", { roomCode: data.roomCode });
     };
 
@@ -266,10 +263,10 @@ function RoomContent() {
 
   if (!mounted || !roomCode) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-2 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-400">Connecting to room...</p>
+          <div className="w-12 h-12 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500">Connecting to room...</p>
         </div>
       </div>
     );
@@ -277,9 +274,9 @@ function RoomContent() {
 
   if (roomError) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center px-4">
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="w-20 h-20 rounded-2xl bg-red-500/20 border border-red-500/30 flex items-center justify-center mb-4 mx-auto">
+          <div className="w-20 h-20 rounded-2xl bg-red-50 border border-red-200 flex items-center justify-center mb-4 mx-auto">
             <svg
               className="w-10 h-10 text-red-500"
               fill="none"
@@ -294,26 +291,26 @@ function RoomContent() {
               />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-white mb-2">Error</h2>
-          <p className="text-gray-400">{roomError}</p>
-          <p className="text-gray-500 text-sm mt-4">Redirecting to home...</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error</h2>
+          <p className="text-gray-600">{roomError}</p>
+          <p className="text-gray-400 text-sm mt-4">Redirecting to home...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-black text-white flex flex-col">
+    <main className="min-h-screen bg-white text-gray-900 flex flex-col">
       {/* Header */}
-      <header className="border-b border-white/10 bg-zinc-950/50 backdrop-blur-sm sticky top-0 z-10">
+      <header className="border-b border-gray-100 bg-white/95 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push("/")}
-              className="p-2 rounded-xl hover:bg-white/10 transition-colors group"
+              className="p-2 rounded-xl hover:bg-gray-100 transition-colors group"
             >
               <svg
-                className="w-5 h-5 text-gray-400 group-hover:text-white"
+                className="w-5 h-5 text-gray-500 group-hover:text-gray-900"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -329,10 +326,10 @@ function RoomContent() {
 
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold">Room:</h1>
+                <h1 className="text-xl font-bold text-gray-900">Room:</h1>
                 <button
                   onClick={copyRoomCode}
-                  className="bg-white/10 px-3 py-1 rounded-lg text-sm font-mono hover:bg-white/20 transition-colors flex items-center gap-2 group"
+                  className="bg-gray-100 px-3 py-1 rounded-lg text-sm font-mono hover:bg-gray-200 transition-colors flex items-center gap-2 group text-gray-900"
                 >
                   {roomCode}
                   <svg
@@ -351,7 +348,7 @@ function RoomContent() {
                 </button>
               </div>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-sm text-gray-400">Chatting as</span>
+                <span className="text-sm text-gray-500">Chatting as</span>
                 {isEditingName ? (
                   <div className="flex items-center gap-2">
                     <input
@@ -359,18 +356,18 @@ function RoomContent() {
                       value={tempUsername}
                       onChange={(e) => setTempUsername(e.target.value)}
                       onKeyPress={(e) => e.key === "Enter" && updateUsername()}
-                      className="bg-white/10 px-2 py-1 rounded text-sm text-white outline-none focus:border-white/30"
+                      className="bg-gray-100 px-2 py-1 rounded text-sm text-gray-900 outline-none focus:border-gray-300"
                       autoFocus
                     />
                     <button
                       onClick={updateUsername}
-                      className="text-xs text-green-500"
+                      className="text-xs text-green-600"
                     >
                       Save
                     </button>
                     <button
                       onClick={() => setIsEditingName(false)}
-                      className="text-xs text-red-500"
+                      className="text-xs text-red-600"
                     >
                       Cancel
                     </button>
@@ -378,7 +375,7 @@ function RoomContent() {
                 ) : (
                   <button
                     onClick={() => setIsEditingName(true)}
-                    className="text-sm text-white hover:text-gray-300 flex items-center gap-1 group"
+                    className="text-sm text-gray-900 hover:text-gray-600 flex items-center gap-1 group"
                   >
                     {username}
                     <svg
@@ -401,7 +398,7 @@ function RoomContent() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 text-xs text-gray-400">
+            <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500">
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -420,10 +417,10 @@ function RoomContent() {
 
             <button
               onClick={() => setShowSidebar(!showSidebar)}
-              className="sm:hidden rounded-xl border border-white/20 bg-white/5 px-3 py-2 hover:bg-white/10 transition-all"
+              className="sm:hidden rounded-xl border border-gray-200 bg-white px-3 py-2 hover:bg-gray-50 transition-all"
             >
               <svg
-                className="w-5 h-5"
+                className="w-5 h-5 text-gray-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -439,14 +436,14 @@ function RoomContent() {
 
             <button
               onClick={leaveRoom}
-              className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm hover:bg-white/10"
+              className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
             >
               Leave Room
             </button>
             {isCreator && (
               <button
                 onClick={() => socket.emit("close_room", { roomCode })}
-                className="rounded-xl bg-red-500 px-4 py-2 text-sm"
+                className="rounded-xl bg-red-500 text-white px-4 py-2 text-sm hover:bg-red-600"
               >
                 Close Room
               </button>
@@ -462,9 +459,9 @@ function RoomContent() {
           <div className="max-w-4xl mx-auto space-y-4">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-[60vh] text-center">
-                <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-4">
+                <div className="w-20 h-20 rounded-2xl bg-gray-50 border border-gray-200 flex items-center justify-center mb-4">
                   <svg
-                    className="w-10 h-10 text-gray-500"
+                    className="w-10 h-10 text-gray-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -477,10 +474,10 @@ function RoomContent() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   No messages yet
                 </h3>
-                <p className="text-gray-400">
+                <p className="text-gray-500">
                   Start the conversation! Type a message below 👋
                 </p>
               </div>
@@ -494,7 +491,7 @@ function RoomContent() {
                 if (isSystem) {
                   return (
                     <div key={index} className="flex justify-center">
-                      <div className="bg-white/5 px-4 py-2 rounded-full text-xs text-gray-400">
+                      <div className="bg-gray-100 px-4 py-2 rounded-full text-xs text-gray-600">
                         {msg.message}
                       </div>
                     </div>
@@ -515,15 +512,15 @@ function RoomContent() {
                         </p>
                       )}
                       <div
-                        className={`rounded-2xl px-4 py-2.5 shadow-lg ${
+                        className={`rounded-2xl px-4 py-2.5 shadow-sm ${
                           isOwnMessage
-                            ? "bg-white text-black rounded-br-sm"
-                            : "bg-zinc-900 text-white border border-white/10 rounded-bl-sm"
+                            ? "bg-gray-900 text-white rounded-br-sm"
+                            : "bg-gray-100 text-gray-900 rounded-bl-sm"
                         }`}
                       >
                         <p className="text-sm break-words">{msg.message}</p>
                         <p
-                          className={`text-[10px] mt-1 ${isOwnMessage ? "text-gray-500" : "text-gray-400"}`}
+                          className={`text-[10px] mt-1 ${isOwnMessage ? "text-gray-400" : "text-gray-500"}`}
                         >
                           {msg.timestamp}
                         </p>
@@ -542,16 +539,16 @@ function RoomContent() {
 
         {/* Sidebar */}
         <aside
-          className={`${showSidebar ? "block" : "hidden"} sm:block fixed sm:relative right-0 top-0 bottom-0 w-64 bg-zinc-950/95 backdrop-blur-sm border-l border-white/10 overflow-y-auto z-20 sm:z-auto`}
+          className={`${showSidebar ? "block" : "hidden"} sm:block fixed sm:relative right-0 top-0 bottom-0 w-64 bg-white border-l border-gray-100 overflow-y-auto z-20 sm:z-auto shadow-lg sm:shadow-none`}
         >
           <div className="p-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-sm">
-                Online Users ({onlineUsers})
+              <h3 className="font-semibold text-sm text-gray-900">
+                Online Users ({onlineUsers.length})
               </h3>
               <button
                 onClick={() => setShowSidebar(false)}
-                className="sm:hidden text-gray-400 hover:text-white"
+                className="sm:hidden text-gray-500 hover:text-gray-900"
               >
                 <svg
                   className="w-5 h-5"
@@ -572,7 +569,7 @@ function RoomContent() {
               {onlineUsers.map((user, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-2 text-sm text-gray-300"
+                  className="flex items-center gap-2 text-sm text-gray-700"
                 >
                   <span className="w-2 h-2 rounded-full bg-green-500"></span>
                   {user === username ? `${user} (You)` : user}
@@ -584,7 +581,7 @@ function RoomContent() {
       </div>
 
       {/* Input Bar */}
-      <footer className="border-t border-white/10 bg-zinc-950/50 backdrop-blur-sm sticky bottom-0">
+      <footer className="border-t border-gray-100 bg-white/95 backdrop-blur-sm sticky bottom-0">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex gap-3 items-end">
             <div className="flex-1 relative">
@@ -604,7 +601,7 @@ function RoomContent() {
                 }}
                 placeholder="Type your message..."
                 rows={1}
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none text-white placeholder-gray-500 focus:border-white/30 focus:bg-white/10 transition-all duration-300 resize-none"
+                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none text-gray-900 placeholder-gray-400 focus:border-gray-300 focus:bg-white transition-all duration-300 resize-none"
                 style={{ minHeight: "48px", maxHeight: "120px" }}
                 onInput={(e) => {
                   const target = e.target as HTMLTextAreaElement;
@@ -613,7 +610,7 @@ function RoomContent() {
                     Math.min(target.scrollHeight, 120) + "px";
                 }}
               />
-              <div className="absolute right-3 bottom-3 text-xs text-gray-500">
+              <div className="absolute right-3 bottom-3 text-xs text-gray-400">
                 {message.length > 0 && <span>⏎ Send</span>}
               </div>
             </div>
@@ -621,7 +618,7 @@ function RoomContent() {
             <button
               onClick={sendMessage}
               disabled={!message.trim()}
-              className="rounded-xl bg-white text-black px-6 py-3 font-semibold hover:bg-gray-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-95 min-w-[80px]"
+              className="rounded-xl bg-gray-900 text-white px-6 py-3 font-semibold hover:bg-gray-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-95 min-w-[80px]"
             >
               Send
             </button>
@@ -644,7 +641,7 @@ export default function RoomPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="min-h-screen bg-white flex items-center justify-center">
           Loading...
         </div>
       }

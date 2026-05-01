@@ -1,8 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core Foundation */
+  --background: #fcfcfc;
+  --foreground: #0f172a;
+
+  /* JustUs Branding & UI */
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --muted: #64748b;
+
+  /* Chat Specifics */
+  --chat-user: #6366f1;    /* Indigo */
+  --chat-peer: #f1f5f9;    /* Light Slate */
+  --chat-accent: #f59e0b;  /* Amber */
+  --chat-online: #10b981;  /* Emerald */
 }
 
 @theme inline {
@@ -14,8 +26,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    
   }
 }
 

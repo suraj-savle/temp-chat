@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TempChat - Instant Anonymous Chat Rooms",
+  title: "Just Us - Instant Anonymous Chat Rooms",
   description: "Create temporary chat rooms instantly. No login required. Private and secure.",
 };
 

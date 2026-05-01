@@ -372,7 +372,19 @@ io.on("connection", (socket) => {
 });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
+
+server.on("error", (error: NodeJS.ErrnoException) => {
+  if (error.code === "EADDRINUSE") {
+    console.error(`\n❌ Port ${PORT} is already in use.`);
+    console.error("Close the existing server process or start with a different PORT.\n");
+    process.exit(1);
+  }
+
+  console.error("\n❌ Failed to start server:", error.message);
+  process.exit(1);
+});
+
 server.listen(PORT, () => {
   console.log(`\n🚀 Server running on http://localhost:${PORT}`);
   console.log(`📡 Socket.IO ready for connections\n`);
